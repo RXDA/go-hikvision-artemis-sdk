@@ -12,7 +12,9 @@ type Data struct {
 }
 
 type ArtemisReq struct {
-	Host      string
+	Schema    string // https or http
+	Host      string // only host
+	Port      uint16 // port
 	Path      string
 	AppKey    string
 	AppSecret string

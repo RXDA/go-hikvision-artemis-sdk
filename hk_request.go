@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/emirpasic/gods/maps/treemap"
 	"github.com/google/uuid"
 	"net/http"
@@ -16,8 +17,6 @@ import (
 	"strings"
 	"time"
 )
-
-
 
 func initialBasicHeader(method, path string, headers, querys, bodys map[string]string, signHeaderPrefixList []string, appKey, appSecret string) map[string]string {
 	headers["x-ca-timestamp"] = strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -186,7 +185,15 @@ func (aReq ArtemisReq) HttpGet(headers, querys map[string]string, signHeaderPref
 	headers = initialBasicHeader("GET", aReq.Path, headers, querys, nil, signHeaderPrefixList, aReq.AppKey, aReq.AppSecret)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", initURL(aReq.Host, aReq.Path, querys), nil)
+
+	var host string
+	if aReq.Port == 0 {
+		host = fmt.Sprintf("%s://%s", aReq.Schema, aReq.Host)
+	} else {
+		host = fmt.Sprintf("%s://%s:%d", aReq.Schema, aReq.Host, aReq.Port)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", initURL(host, aReq.Path, querys), nil)
 	if err != nil {
 		return nil, err
 	}
