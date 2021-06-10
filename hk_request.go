@@ -181,8 +181,8 @@ func (aReq ArtemisReq) HttpGet(headers, querys map[string]string, signHeaderPref
 		"Accept":       "*/*",
 		"Content-Type": "application/text;charset=UTF-8",
 	}
-
-	headers = initialBasicHeader("GET", aReq.Path, headers, querys, nil, signHeaderPrefixList, aReq.AppKey, aReq.AppSecret)
+	path := aReq.Path + aReq.AppKey
+	headers = initialBasicHeader("GET", path, headers, querys, nil, signHeaderPrefixList, aReq.AppKey, aReq.AppSecret)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -193,7 +193,7 @@ func (aReq ArtemisReq) HttpGet(headers, querys map[string]string, signHeaderPref
 		host = fmt.Sprintf("%s://%s:%d", aReq.Schema, aReq.Host, aReq.Port)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", initURL(host, aReq.Path, querys), nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", initURL(host, path, querys), nil)
 	if err != nil {
 		return nil, err
 	}
